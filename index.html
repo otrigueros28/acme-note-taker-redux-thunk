@@ -58,7 +58,7 @@ input, button {
 
       const {createStore, combineReducer, applyMiddleware} = Redux;
       const {thunk} = redux-thunk;
-
+//action types
       const SET_NOTE = 'SET_NOTE';
       const DELETE_NOTE = 'DELETE_NOTE';
       const ADD_NOTE = 'ADD_NOTE';
@@ -68,18 +68,12 @@ input, button {
         switch(action.type){
           case SET_NOTE:
             return action.notes
-        }
-        switch (action.type) {
           case DELETE_NOTE:
-            return action.notes.filter((_note, id) => action.type.id !== _note.id)
-        }
-        switch (action.type){
+            return action.notes.filter((_note, id) => action.notes.id !== _note.id)
           case ADD_NOTE:
             return [...state, action.notes]
-        }
-        switch (action.type){
           case UPDATE_NOTE:
-            return action.notes.map((note, id) => note.id === update.id ? update : note)
+            return [...state].map((note, id) => note.id === action.update.id ? action.update : note)
         }
         return state
       }
@@ -134,7 +128,7 @@ input, button {
 
 
 
-      const Notes = ({ notes, archived, update, destroy })=> {
+      const _Notes = ({ notes })=> {
         return (
           <ul>
             {
@@ -148,8 +142,25 @@ input, button {
             }
           </ul>
         );
-
       };
+
+
+      const Notes = connect(({notes})=>({notes}), (dispatch)=>{
+        return {
+          setNote: ()=>{
+            dispatch(getNotes()),
+          },
+          deleteNote: ()=>{
+            dispatch(destroyNote())
+          },
+          updateNote: ()=>{
+            dispatch(editNote())
+          }
+        }
+      } )(_Notes)
+
+
+
 
       const Nav = ({ path, notes })=> {
         const archived = notes.filter( note => note.archived);
@@ -162,23 +173,25 @@ input, button {
         );
       };
 
-      class Create extends Component{
-        constructor(){
-          super();
-          this.state = {
-            text: '',
-            error: ''
-          };
-          this.create = this.create.bind(this);
-        }
-        create(){
-          this.props.create({ text: this.state.text })
-            .then(()=> this.props.history.push('/notes'))
-            .catch( ex => this.setState({ error: ex.response.data.message }));
-        }
-        render(){
-          const { text, error } = this.state;
-          const { create } = this;
+
+      const _Create = ({notes}) =>{
+      // class Create extends Component{
+      //   constructor(){
+      //     super();
+      //     this.state = {
+      //       text: '',
+      //       error: ''
+      //     };
+      //     this.create = this.create.bind(this);
+      //   }
+      //   create(){
+      //     this.props.create({ text: this.state.text })
+      //       .then(()=> this.props.history.push('/notes'))
+      //       .catch( ex => this.setState({ error: ex.response.data.message }));
+      //   }
+      //   render(){
+      //     const { text, error } = this.state;
+      //     const { create } = this;
           return (
             <form onSubmit = { ev => ev.preventDefault() }>
               { !!error && <div className='error'>{error }</div>  }
@@ -186,8 +199,15 @@ input, button {
               <button disabled={ !text } onClick={ create }>Create</button>
             </form>
           );
+        };
+
+      const Create = connect(({notes})=> ({notes}), (dispatch)=>{
+        return {
+          addNote: ()=> {
+            dispatch(newNote())
+          }
         }
-      }
+      })(_Create)
 
       class App extends Component{
         /*constructor(){
