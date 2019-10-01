@@ -162,7 +162,7 @@ input, button {
 
 
 
-      const Nav = ({ path, notes })=> {
+      const _Nav = ({ path, notes })=> {
         const archived = notes.filter( note => note.archived);
         return (
           <nav>
@@ -173,6 +173,11 @@ input, button {
         );
       };
 
+      const Nav = connect((({notes})=> ({notes}), )=>{
+        return {
+
+        }
+      })
 
       const _Create = ({notes}) =>{
       // class Create extends Component{
